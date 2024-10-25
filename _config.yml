@@ -18,18 +18,18 @@ timezone:
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Maylon Xu # the main title
+title: Beam # the main title
 
-tagline: Blogs of my study # it will display as the sub-title
+tagline: Coding makes me happy! # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
-url: "https://Country-If.github.io"
+url: "https://Beam-boop.github.io"
 
 github:
-  username: Country-If # change to your github username
+  username: Beam-boop # change to your github username
 
 #twitter:
 #  username: twitter_username # change to your twitter username
@@ -37,12 +37,12 @@ github:
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
-  name: Maylon Xu
+  name: WBeam Guo
   email: maylonxu@foxmail.com # change to your email address
   links:
     # The first element serves as the copyright owner's link
     # - https://twitter.com/username # change to your twitter homepage
-    - https://github.com/Country-If # change to your github homepage
+    - https://github.com/Beam-boop # change to your github homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     # - https://www.linkedin.com/in/username
@@ -88,8 +88,8 @@ toc: true
 
 gitalk:
   enable: true
-  github_id: Country-If
-  repo: Country-If.github.io
+  github_id: Beam-boop
+  repo: Beam-boop.github.io
   client_id: 2cd80a8a10e722b27de8
   client_secret: 567743e9b35102c642bdad3def4d4c5d16dd4bab
 
