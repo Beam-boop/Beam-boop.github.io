@@ -15,7 +15,6 @@ layout: compress
 <!-- `site.alt_lang` can specify a language different from the UI -->
 <html lang="{{ page.lang | default: site.alt_lang | default: site.lang }}" {{ prefer_mode }}>
   {% include head.html %}
-  <script type="text/javascript" src="/js/snow_background.js"></script>
   <body>
     {% include sidebar.html lang=lang %}
 
@@ -78,5 +77,6 @@ layout: compress
     {% include js-selector.html lang=lang %}
 
     {% include_cached search-loader.html lang=lang %}
+    <script type="text/javascript" src="/js/snow_background.js"></script>
   </body>
 </html>
