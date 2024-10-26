@@ -16,5 +16,5 @@ order: 4
   | **Degree**     | Bachelor's Degree of Engineering          | Master's Degree of Engineering   |
 
 - Blog
-  - [Github Page](https:/Beam-boop.github.io)
+  - [Github Page](https://Beam-boop.github.io)
   - [CSDN](https://blog.csdn.net/m0_49996105)
