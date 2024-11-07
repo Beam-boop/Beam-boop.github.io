@@ -14,7 +14,7 @@ pin: true
 
 
 
-## pikachu靶场通关—自学
+## pikachu靶场通关笔记
 
 ### 暴力破解
 
