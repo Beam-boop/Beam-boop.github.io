@@ -28,3 +28,15 @@ switchyOmega是chome的一款插件，非常有意思，特别是用于定向抓
 
    ![image-20241107235620872](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241107235620872.png)
 
+后面发现如果用网页需要vpn才能，就访问不了，于是重新设置了规则。
+
+1. 首先设置了通过BP代理的情景模式；
+
+   ![image-20241108110124116](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241108110124116.png)
+
+2. 接着设置proxy，是通过vpn进行代理的，其实也就是系统代理（如果电脑常开vpn），端口号可通过自己的科学上网软件查找
+   ![image-20241108110354244](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241108110354244.png)
+
+3. auto switch设置，设置靶机走bp情景模式，其他默认是走proxy，这样子就ok啦！
+
+   ![image-20241108111619428](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241108111619428.png)
