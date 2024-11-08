@@ -1581,7 +1581,7 @@ $sidebar-display: "sidebar-display";
 
 @media all and (min-width: 1400px) {
   #back-to-top {
-    right: calc((100vw - #{$sidebar-width} - 820px) / 2 + 3rem);
+    right: calc((100vw - #{$sidebar-width} - 720px) / 2 + 3rem);
   }
 }
 
@@ -1611,7 +1611,7 @@ $sidebar-display: "sidebar-display";
   }
 
   #back-to-top {
-    right: calc((100vw - #{$sidebar-width-large} - #{$main-content-max-width}) / 2 + 2rem);
+    right: calc((100vw - #{$sidebar-width-large} - #{$main-content-max-width} + 300px) / 2 + 2rem);
   }
 
   #sidebar {
