@@ -14,7 +14,7 @@ pin: true
 
 ## Ubuntu apache2 的配置
 
-1. ### motivation
+### 1. Motivation
 
    docker下安装apache，在网上有很多办法，比如说
 
@@ -24,11 +24,11 @@ docker pull httpd:latest
 
 ​	但是很多都是基于debain的linux系统，而没有基于ubuntu，本人比较习惯ubuntu，并且为了更好的学习网安攻防的	基础知识，所以决定自己搭建一个本地的apache环境，以供安全学习。
 
-2. ### Prerequisites
+### 2. Prerequisites
 
    docker有ubuntu的镜像
 
-3. ### solution
+### 3. Solution
 
    - 创建docker容器
 
