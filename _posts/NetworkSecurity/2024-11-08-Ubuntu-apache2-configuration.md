@@ -155,3 +155,11 @@ docker pull httpd:latest
      重新打开网页，就会发现！
 
      ![image-20241109105354776](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241109105354776.png)
+     
+     如果要运行php文件，还需要
+     
+     ```sh
+     apt install php
+     ```
+     
+     然后重启apache2
