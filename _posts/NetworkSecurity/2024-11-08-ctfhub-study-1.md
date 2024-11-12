@@ -115,3 +115,33 @@ pin: true
          这就尝试出了结果，应该来说上面那题目也可以这么做，dirsearch的下载和安装可以[参考](https://beam-boop.github.io/posts/Docker,-python,-dirsearch-configuration/)
        
          ![image-20241112124815447](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241112124815447.png)
+
+         - ##### vim缓存
+         
+         vim在意外退出的时候就会有缓存备份文件的出现，经过试验可以发现，文件的后缀`.swp`，以此往上类推`.swo`, `.swn`等等
+         
+         ![image-20241112205434253](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241112205434253.png)
+         
+         那么就好办了，利用之前`php_backup.txt`来进行dirsearch就可以了。诶，发现没有结果。
+         
+         ```bash
+         python3 dirsearch.py -u http://challenge-481b0871930078bd.sandbox.ctfhub.com:10800/ -w ../php_backup.txt
+         ```
+         
+         ![image-20241112210014293](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241112210014293.png)
+         
+         原来是缓存文件是.test.php.swp，而不是test.php.swp，修改php_backup.txt文件，结果如下
+         
+         ![image-20241112210315963](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241112210315963.png)
+         
+         一般的备份文件windows下打不开，那不如用curl命令直接下载到docker，然后打开看看算了。curl命令如果没有安装的话，建议先apt一下，-o实际上是--output
+         
+         ```bash
+         apt install curl -y
+         ```
+         
+         ```bash
+         curl http://challenge-481b0871930078bd.sandbox.ctfhub.com:10800/.index.php.swp -o index.php.swp
+         ```
+         
+         那接下来就是打开 `index.php.swp`，这是一个备份文件，那么肯定要恢复，vim读取备份文件可以用 `vim -r`，打开后就能够拿到结果啦～
