@@ -1,6 +1,6 @@
 ---
 
-title: Docker, python, dirseach configuration
+title: Docker,python,dirseach configuration
 
 date: 2024-11-11 10:00:00 +0800
 
