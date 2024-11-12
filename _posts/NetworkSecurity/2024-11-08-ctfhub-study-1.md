@@ -145,3 +145,13 @@ pin: true
          ```
          
          那接下来就是打开 `index.php.swp`，这是一个备份文件，那么肯定要恢复，vim读取备份文件可以用 `vim -r`，打开后就能够拿到结果啦～
+
+         - ##### DS_Store
+         
+         原来DS_Store是macos的备份文件，那就直接尝试/DS_Store，能下载，接下来就是怎么打开这个问题。
+         
+         先用vim打开一下，尝试`vim -r`，可惜乱码，那就用cat查看，发现还真可以。
+         
+         ![image-20241112214030258](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241112214030258.png)
+         
+         直接用这串.txt文件，在浏览器打开，就能找到flag啦～
