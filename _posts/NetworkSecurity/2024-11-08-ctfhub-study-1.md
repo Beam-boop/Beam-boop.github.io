@@ -155,3 +155,35 @@ pin: true
          ![image-20241112214030258](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241112214030258.png)
          
          直接用这串.txt文件，在浏览器打开，就能找到flag啦～
+
+         - #### git泄漏
+         
+           - Log
+         
+           git 的log泄漏应该是之前添加了flag，但是后面又删除了flag。假如现在在上传项目的时候不小心把.git文件都上传上去了，那么就有可能会泄漏flag。通过这种猜测，我们来实践一下，我看网上大家用到的都是GitHack这个工具，具体的安装步骤和踩过的坑我写在这篇[博客]()
+         
+           有这个工具就很简单啦～，还是要掌握好各种工具的使用啊，记得要用`python2`
+         
+           ```bash
+           python2 GitHack.py http://challenge-df89cafd90c3caf2.sandbox.ctfhub.com:10800/.git
+           ```
+         
+           ![image-20241113200358761](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241113200358761.png)
+         
+           下载后再/dist目录下，进入目录，输入`ls -a`，查看所有文件，就能发现有`.git`，在之前的踩坑记录中，用的是lijiejie的GitHack，克隆后是没有`.git`，我也不知道为什么。
+         
+           ![image-20241113200514736](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241113200514736.png)
+         
+           之后呢有两个办法可以来capture the flag，先用git log查看日志
+         
+           ![image-20241113200835940](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241113200835940.png)
+         
+           1. `git diff`：比较之前的一个commit的不同；
+         
+              ![image-20241113201111748](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241113201111748.png)
+         
+           2. `git reset`: 重新回到之前的commit
+         
+              ![image-20241113201141712](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241113201141712.png)
+         
+              进入`.txt`后就可以啦～
