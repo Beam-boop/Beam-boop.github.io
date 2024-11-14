@@ -157,6 +157,8 @@ pin: true
          直接用这串.txt文件，在浏览器打开，就能找到flag啦～
 
          - #### git泄漏
+
+         首先需要了解git的原理和操作，可以参考这篇[博客](https://www.cnblogs.com/Jing-Wang/p/10991008.html)，写得挺好的
          
            - Log
          
@@ -187,3 +189,28 @@ pin: true
               ![image-20241113201141712](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241113201141712.png)
          
               进入`.txt`后就可以啦～
+
+              - Stash
+           
+              git stash能另外开辟一个暂存区，用来保存目前已经修改但是还有添加到暂存区的部份，它其实是一个堆栈，主要是在处理紧急情况，比如说：主分支上有bug，如果此时add后，后面如果需要重新覆盖本地，那会造成冲突，所以就可以用stash。`git stash list`可以查看目前的堆栈列表
+           
+              跟上一题一样，先把整个`.git`拉下来，然后
+           
+              ```bash
+              git stash list
+              ```
+           
+              ![image-20241114215618429](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241114215618429.png)
+           
+              可以看到stash暂存区里面有add flag，那就好办了～
+           
+              直接用`git stash pop`，这个命令的作用就是把stash暂存区里面的修改重新覆盖到主分支上
+           
+              ![image-20241114215833681](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241114215833681.png)
+           
+              可以用`git stash apply`，默认是把stash@{0}恢复到主分支，但是也可以指定其他的
+           
+              
+              - index
+           
+              这题目没有什么好说的，挺简单的，主要是我不是很懂这题的意思，index是什么，搜索了一下，发现index就是索引区，也叫做暂存区，一般存放在`.git/index`目录下面，还真是。view了一下index文件，里面也有对应的txt文件名，但是git add后其实文件也是在本地目录那里，所以自然也能在目录那里查找到
