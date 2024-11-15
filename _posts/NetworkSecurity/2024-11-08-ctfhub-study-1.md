@@ -214,3 +214,30 @@ pin: true
               - index
            
               这题目没有什么好说的，挺简单的，主要是我不是很懂这题的意思，index是什么，搜索了一下，发现index就是索引区，也叫做暂存区，一般存放在`.git/index`目录下面，还真是。view了一下index文件，里面也有对应的txt文件名，但是git add后其实文件也是在本地目录那里，所以自然也能在目录那里查找到
+
+           - #### svn泄漏
+           
+             svn也是一种版本控制。根据别人的踩坑日记，github上两个比较好用的工具svnHack和svnexpliot都没能下载.svn文件，有人在2021年提了issue给到作者，作者也没有加上，所以只能用[dvcs-ripper](https://github.com/kost/dvcs-ripper)，安装方法我就不多做介绍，github上都说得很清楚，按照教程来没有问题。
+           
+             首先，先扫一遍目录，看看有没有.svn或者.git文件，虽然题目有说，但是常规流程还是要走一遍吧
+           
+             ![image-20241115205829669](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241115205829669.png)
+           
+             键入以下命令，我们就可以把.svn下载到本地
+           
+             ```bash
+             perl rip-svn.pl -v -u http://challenge-8d84dcb3b8aeb57b.sandbox.ctfhub.com:10800/.svn
+             ```
+           
+             ![image-20241115205959974](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241115205959974.png)
+           
+             有了.svn文件夹后，一般来说所有的文件都会在`.svn/pristine`有一个备份，包括被删掉的文件。![image-20241115210102931](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241115210102931.png)
+           
+             这样子就能拿到flag啦～
+           
+           - #### hg泄漏
+           
+             可以继续用dvcs-ripper来下载`.hg`文件，下载下来后就开始找，一般来说是把flag上传，然后又undo撤回了，就会存在泄漏，那么store里面应该就有，看到了`undo`文件，cat后发现有txt文件名称，ok，输入浏览器，就可以拿到flag
+           
+             ![image-20241115212229318](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241115212229318.png)
+           
