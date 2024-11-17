@@ -240,4 +240,22 @@ pin: true
              可以继续用dvcs-ripper来下载`.hg`文件，下载下来后就开始找，一般来说是把flag上传，然后又undo撤回了，就会存在泄漏，那么store里面应该就有，看到了`undo`文件，cat后发现有txt文件名称，ok，输入浏览器，就可以拿到flag
            
              ![image-20241115212229318](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241115212229318.png)
+
+### 4. 密码口令
+       
+  - #### 弱口令
+       
+    弱口令可以到网上去找，我找了2023年top前200的弱口令来进行暴力破解，幸好不需要验证码之类的，其实做过pikachu靶场的对这种题也是司空见惯，附[github链接](https://github.com/danielmiessler/SecLists/blob/master/Passwords/2023-200_most_used_passwords.txt)
+  
+    使用bp转包，放到Intruder，然后payload用这个就好了，40000条数据，跑一下就完成了，最后观察len的长度，就能找到啦～
+       
+         
+       
+  - ##### 默认口令
+       
+    这道题目也是很不错，虽然有验证码，并且验证码竟然是没有过期的，哎，我尝试了一下重放攻击，发现验证码是不能多次使用，所以放弃，直接上网找默认口令，[棱角社区](https://forum.ywhack.com/password.php)，[Common-device-default-password](https://github.com/NepoloHebo/Common-device-default-password)
+  
+    ![image-20241117221649167](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241117221649167.png)
+  
+    然后就一个个试，幸好不多，就是出来啦，ps:棱角社区的帐号密码有点错误
            
