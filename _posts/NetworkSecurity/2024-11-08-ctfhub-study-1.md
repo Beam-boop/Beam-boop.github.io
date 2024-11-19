@@ -322,8 +322,6 @@ pin: true
     1' and 1=2 union select group_concat(table_name),2 from information_schema.tables where table_schema='sqli'#
     ```
     
-    ![image-20241119093610451](../../../../../../Users/guoweibin/Library/Application%20Support/typora-user-images/image-20241119093610451.png)
-    
     爆字段
     
     ```sql
