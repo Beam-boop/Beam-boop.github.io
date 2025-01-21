@@ -453,4 +453,26 @@ pin: true
     ```sql
     1 and (select updatexml (1, concat(0x7e, (select right(flag,3) from flag)),1))	
     ```
-    
+  - #### 布尔注入
+
+  怎么理解布尔注入呢？其实就是每一次查询，后台只会返回查询成功或者失败，那么就得写个脚本，自动化地去猜，猜数据库的长度，名称，数据表的个数，长度和名称，字段的个数，长度和名称以及字段的内容等等，看了别人的脚本后，把他的github代码fork到自己的仓库一份[🔗](https://github.com/Beam-boop/SQL-Blind-Injection-Auto)，其实代码中最重要的还是sql查询语句，比如acsii,substr,length来实现查询。
+
+  为什么要用length很好理解吧，那为啥要用ascii码呢？因为在sql语句中，没有“a==a”或者其他这种字母的判断方式，所以最好就是用ascii('xxx') = ascii('yyy')，其中yyy就是我们的猜测，如果猜中了，那么用chr(yyy)拼接进去就好了，在猜的过程中，可以用二分的办法，可以提高效率；substr使用的原因也不用多说，主要是参数问题，一半有三个参数(str,pos,len)。
+
+- #### 时间注入
+
+![image-20250120171534912](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250120171534912.png)
+
+输入后竟然什么都不返回，那这个应该怎么做呢，只能看看网上的writeup了。布尔注入是会有一个返回结果，告知是正确还是错误的，但是时间注入不一样，没有返回结果，他什么信息都不给你，这就是所谓的无回显。所以需要自己手动构造一个success_flag出来，这就用到了sql的if函数
+
+```sql
+if(1=1,1,sleep(2))
+```
+
+如果条件判断为真，那么直接返回1，如果为假，那么需要等待2ms再返回，那么就可以利用这个返回的时间，来判断是否正确，只需要
+
+```python
+requests.get(url, headers=headers, timeout=1).text
+```
+
+所以，我们可以通过是否有异常来判断。
