@@ -24,6 +24,20 @@ pin: true
    - 302跳转
    - Cookie
    - 基础认证
+   
+   今天有人问到了这个问题，刚好就来更新一下自己的刷题笔记。在解题之前，我们需要了解基础认证是什么？只有有了这些先验知识，才能去做攻击。
+
+HTTP基本认证（Basic Authentication）是一种简单的客户端-服务器身份验证机制，常用于保护Web资源
+
+1. 客户端首次请求受保护资源：客户端请求，那么服务器就会发现资源需要认证，返回 **`401 Unauthorized`** 状态码。在响应头中添加 **`WWW-Authenticate`** 字段，指定认证方式（Basic）和受保护区域（realm）。
+
+   ![](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250226112918231.png)
+
+2. 客户端提交认证信息：用户输入，浏览器弹出对话框要求输入用户名和密码。客户端行为：将用户名和密码按格式 `username:password` 拼接（如 `admin:nicole`）。使用 Base64编码 转换为字符串（如 YWRtaW46bmljb2xl）。在请求头中添加 Authorization 字段。
+
+   ![image-20250226113338759](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250226113338759.png)
+
+采用burpsuit的intruder进行密码本攻击就可以了，但是需要添加前缀和base64编码，但是需要注意的是payload的编码**需要取消**url字符编码的勾选，一旦勾选了，会先对payload进行url特殊字符编码，但是后台是没有针对url编码的解码，所以`：`会被url编码成别的，导致后端识别不了账号和密码。
    - 响应包源代码
 
 ### 3. 信息泄漏
