@@ -54,6 +54,8 @@ Dirseach 是一款web路径扫描工具，[git地址](https://github.com/mauroso
      
      ```bash
      apt install pip3
+     or
+     apt install python3-pip
      ```
      
      但是！直接pip3 安装会出错，所以我直接粗暴的去掉这个错误，具体原因可[参考](https://www.yaolong.net/article/pip-externally-managed-environment/)
