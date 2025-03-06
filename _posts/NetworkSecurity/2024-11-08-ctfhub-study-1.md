@@ -639,3 +639,21 @@ print(requests.get(burp0_url+quote(id), headers=burp0_headers).text)
 那么来刷题！其实明白了原理就很简单，首先在[xss平台](https://xssjs.com/)创建项目，然后将恶意代码输入第一个框，此时点击第一个按键，会发现没有回显，这很正常，就表明现在的恶意代码已经注入了当前页面的服务器的数据库。![image-20250303220902162](C:/Users/Beamice/AppData/Roaming/Typora/typora-user-images/image-20250303220902162.png)
 
 此时只需要把当前的url传给bot就好，只要bot打开这个网页，我们的后台就会出现cookies啦~![image-20250303221127230](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250303221127230.png)
+
+#### DOM反射
+
+**DOM 型 XSS** 是一种完全在客户端（浏览器）触发的跨站脚本攻击，恶意代码的执行由页面的 **DOM 操作** 引发，**无需与服务器交互**。其核心特点如下：
+
+- **无服务器参与**：漏洞源于前端 JavaScript 对用户输入的不安全处理，服务器可能返回“干净”的响应，但客户端脚本错误地将输入注入 DOM。
+- **隐蔽性高**：传统扫描工具难以检测，因为攻击链仅在浏览器中完成。
+- **触发场景**：通过 `location.hash`、`document.write`、`innerHTML` 等动态操作 DOM 的 API。
+
+攻击过程：其实就是将含有DOM漏洞的url发送给受害者，点击打开即完成攻击，因为攻击只需要浏览器解析就能产生，不需要服务器的参与。主要会引发问题的事innerHTML，innerHTML会将输入动态的展示到HTML，此时浏览器会解析用户输入为DOM元素，从而导致攻击。
+
+防御：
+
+1. **禁用危险 API**：
+
+   避免直接使用 `innerHTML`、`outerHTML`、`document.write()` 等 API。**替代方案**：使用 `textContent` 或 `setAttribute` 安全插入内容。
+
+2. 对输入内容进行转义，或者转义 `"` 和 `'`，并始终用引号包裹属性值。
